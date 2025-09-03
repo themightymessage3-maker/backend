@@ -171,7 +171,8 @@ app.post('/create-admin', async (req, res) => {
 const Product = require('./Product');
 app.get('/products', async (req, res) => {
   try {
-    const products = await Product.find();
+    const category = req.query.category;
+    const products = category ? await Product.find({ category }) : await Product.find();
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: 'Error fetching products' });
