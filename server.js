@@ -1,13 +1,3 @@
-// Delete product by ID
-app.delete('/products/:id', async (req, res) => {
-  try {
-    const deleted = await Product.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: 'Product not found' });
-    res.json({ message: 'Product deleted' });
-  } catch (err) {
-    res.status(500).json({ error: 'Error deleting product' });
-  }
-});
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -25,6 +15,17 @@ app.get('/', (req, res) => {
 
 const User = require('./user');
 const CryptoAddress = require('./CryptoAddress');
+
+// Delete product by ID
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Product not found' });
+    res.json({ message: 'Product deleted' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error deleting product' });
+  }
+});
 
 // Update admin login details
 app.put('/users/admin', async (req, res) => {
