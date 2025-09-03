@@ -182,17 +182,34 @@ app.get('/products', async (req, res) => {
 
 app.post('/products', async (req, res) => {
   try {
-    const { name, description, price, image, category, variants, available } = req.body;
-    const product = new Product({ name, description, price, image, category, variants, available });
+    // For multipart/form-data, use multer
+    // If not using multer, fallback to req.body
+    const { name, description, price, category, status } = req.body;
+    let image = req.body.image;
+    // Validate required fields
+    if (!name || !category || !price || !image) {
+      return res.status(400).json({ error: 'Missing required fields: name, category, price, image' });
+    }
+    // Default status to 'active' if not provided
+    const productStatus = status || 'active';
+    // Save product
+    const product = new Product({
+      name,
+      description,
+      price,
+      image,
+      category,
+      status: productStatus
+    });
     await product.save();
     res.json({ message: 'Product created', product });
   } catch (err) {
-    res.status(500).json({ error: 'Error uploading product' });
+    res.status(500).json({ error: err.message || 'Error uploading product' });
   }
 });
 
 // --- Order Routes ---
-const Order = require('./Order');
+const Order = require('./models/Order');
 app.get('/orders', async (req, res) => {
   try {
     const orders = await Order.find().populate('user').populate('products.product');
@@ -234,4 +251,3 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     });
   })
   .catch(err => console.error('MongoDB connection error:', err));
-
