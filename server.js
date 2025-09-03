@@ -180,7 +180,7 @@ app.post('/products', async (req, res) => {
 });
 
 // --- Order Routes ---
-const Order = require('./models/Order');
+const Order = require('./Order');
 app.get('/orders', async (req, res) => {
   try {
     const orders = await Order.find().populate('user').populate('products.product');
@@ -222,4 +222,5 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     });
   })
   .catch(err => console.error('MongoDB connection error:', err));
+
 
