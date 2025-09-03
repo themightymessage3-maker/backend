@@ -1,3 +1,13 @@
+// Delete product by ID
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Product not found' });
+    res.json({ message: 'Product deleted' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error deleting product' });
+  }
+});
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -180,7 +190,7 @@ app.post('/products', async (req, res) => {
 });
 
 // --- Order Routes ---
-const Order = require('./Order');
+const Order = require('./models/Order');
 app.get('/orders', async (req, res) => {
   try {
     const orders = await Order.find().populate('user').populate('products.product');
@@ -222,5 +232,3 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     });
   })
   .catch(err => console.error('MongoDB connection error:', err));
-
-
