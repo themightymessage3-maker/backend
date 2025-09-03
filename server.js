@@ -156,7 +156,61 @@ app.post('/create-admin', async (req, res) => {
   }
 });
 
-// TODO: Add routes for products, cart, orders, shipping, billing, and authentication
+
+// --- Product Routes ---
+const Product = require('./models/Product');
+app.get('/products', async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching products' });
+  }
+});
+
+app.post('/products', async (req, res) => {
+  try {
+    const { name, description, price, image, category, variants, available } = req.body;
+    const product = new Product({ name, description, price, image, category, variants, available });
+    await product.save();
+    res.json({ message: 'Product created', product });
+  } catch (err) {
+    res.status(500).json({ error: 'Error uploading product' });
+  }
+});
+
+// --- Order Routes ---
+const Order = require('./models/Order');
+app.get('/orders', async (req, res) => {
+  try {
+    const orders = await Order.find().populate('user').populate('products.product');
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching orders' });
+  }
+});
+
+app.post('/orders', async (req, res) => {
+  try {
+    const { user, products, total, billingInfo, paymentAddresses } = req.body;
+    const order = new Order({ user, products, total, billingInfo, paymentAddresses });
+    await order.save();
+    res.json({ message: 'Order placed', order });
+  } catch (err) {
+    res.status(500).json({ error: 'Error placing order' });
+  }
+});
+
+// Cancel order endpoint
+app.patch('/orders/:id/cancel', async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(req.params.id, { status: 'cancelled' }, { new: true });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json({ message: 'Order cancelled', order });
+  } catch (err) {
+    res.status(500).json({ error: 'Error cancelling order' });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/docushop';
