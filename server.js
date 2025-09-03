@@ -158,7 +158,7 @@ app.post('/create-admin', async (req, res) => {
 
 
 // --- Product Routes ---
-const Product = require('./models/Product');
+const Product = require('./Product');
 app.get('/products', async (req, res) => {
   try {
     const products = await Product.find();
@@ -222,3 +222,4 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     });
   })
   .catch(err => console.error('MongoDB connection error:', err));
+
