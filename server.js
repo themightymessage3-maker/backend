@@ -1,3 +1,23 @@
+// Multer setup for image uploads
+const multer = require('multer');
+const path = require('path');
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, path.join(__dirname, 'uploads'));
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + '-' + file.originalname);
+    }
+  }),
+  fileFilter: function (req, file, cb) {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+});
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -180,24 +200,21 @@ app.get('/products', async (req, res) => {
   }
 });
 
-app.post('/products', async (req, res) => {
+app.post('/products', upload.single('image'), async (req, res) => {
   try {
-    // For multipart/form-data, use multer
-    // If not using multer, fallback to req.body
     const { name, description, price, category, status } = req.body;
-    let image = req.body.image;
     // Validate required fields
-    if (!name || !category || !price || !image) {
+    if (!name || !category || !price || !req.file) {
       return res.status(400).json({ error: 'Missing required fields: name, category, price, image' });
     }
     // Default status to 'active' if not provided
     const productStatus = status || 'active';
-    // Save product
+    // Save product with image filename
     const product = new Product({
       name,
       description,
       price,
-      image,
+      image: '/uploads/' + req.file.filename,
       category,
       status: productStatus
     });
@@ -207,6 +224,8 @@ app.post('/products', async (req, res) => {
     res.status(500).json({ error: err.message || 'Error uploading product' });
   }
 });
+// Serve uploaded images statically
+app.use('/uploads', require('express').static(path.join(__dirname, 'uploads')));
 
 // --- Order Routes ---
 const Order = require('./models/Order');
