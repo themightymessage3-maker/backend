@@ -84,7 +84,16 @@ app.post('/users/login', async (req, res) => {
     if (user.status !== 'active') {
       return res.status(403).json({ error: 'Account not active' });
     }
-    res.json({ message: 'Login successful', user: { id: user._id, email: user.email, username: user.username, role: user.role } });
+    res.json({
+      message: 'Login successful',
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        status: user.status
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
