@@ -228,7 +228,7 @@ app.post('/products', upload.single('image'), async (req, res) => {
 app.use('/uploads', require('express').static(path.join(__dirname, 'uploads')));
 
 // --- Order Routes ---
-const Order = require('./models/Order');
+const Order = require('./Order');
 app.get('/orders', async (req, res) => {
   try {
     const orders = await Order.find().populate('user').populate('products.product');
@@ -270,3 +270,4 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     });
   })
   .catch(err => console.error('MongoDB connection error:', err));
+
